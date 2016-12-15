@@ -125,7 +125,7 @@ func main() {
 	}
 	if !flagQuiet {
 		elapsed := time.Since(start)
-		fmt.Printf("Processed %d total in %v\n" , total, elapsed)
+		fmt.Printf("Processed %d total items in %v\n" , total, elapsed)
 	}
 }
 
