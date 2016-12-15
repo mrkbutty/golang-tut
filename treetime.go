@@ -4,9 +4,9 @@ treetime will set directory timestamps to match most recent of contents below.
 In default mode it will recursively travel down the named directorys looking at
 modification times setting the parent directory to the most recent.  This includes file and directory timestamps unless changed with "-i".
 
-Usage: treetime [directory] ...
+Usage: treetime <directory>...
 
-	directory = defaults to "."
+	<directory> = list of directories to process.
 
   -d    Follow hidden dot directorys
   -i    Ignore directory timestamps
@@ -114,15 +114,16 @@ func main() {
 	flag.BoolVar(&flagTestOnly, "t", false, "Test only do not change")
 	flag.Parse()
 
-	items := []string{"."}  // default arguments to use if omitted
+	//items := []string{"."}  // default arguments to use if omitted
 
-	if flag.NArg() > 0 {
-		items = flag.Args()
+	if flag.NArg() == 0 {
+		flag.PrintDefaults()
+		return
 	}
 
 	start := time.Now()
 	total := 0
-	for _, i := range items {
+	for _, i := range flag.Args() {
 		topitems, err := filepath.Glob(i)
 		if err != nil { log.Fatal(err) }
 		for _, j := range topitems {
