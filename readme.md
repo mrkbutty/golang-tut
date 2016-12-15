@@ -11,8 +11,7 @@ modification times setting the parent directory to the most recent.  This includ
 
 
 **Usage:** 
-```
-treetime [directory] ...
+```treetime [directory] ...
 
 	directory = defaults to "."
 
