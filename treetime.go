@@ -1,5 +1,7 @@
 /*
-treetime will set directory timestamps to match most recent of contents.
+treetime will set directory timestamps to match most recent of contents below.
+
+
 
 */
 
@@ -14,8 +16,11 @@ import "io/ioutil"
 import "time"
 
 var flagVerbose bool
+var flagQuiet bool
 var flagDotted bool
 var flagIgnoreDir bool
+var flagTestOnly bool
+var dateFormat=time.RFC1123
 
 func walktree(droot string) (int, error) {
 
@@ -61,15 +66,28 @@ func walktree(droot string) (int, error) {
   }
 
 	//now get most updated modification time
+	checked := 0
   for _, i := range flist {
   	if flagIgnoreDir && i.Mode().IsDir() { continue }
   	if i.ModTime().After(maxtime) { maxtime = i.ModTime()}
+  	checked++
   }
 
-  if flagVerbose {
-  	fmt.Printf("[%s]\t%v\t-->\t%v\n", filepath.Base(droot), 
-	  	drootinfo.ModTime().Format(time.UnixDate), 
-	  	maxtime.Format(time.UnixDate))
+  if checked > 0 { // does not change empty directories
+  	if maxtime.IsZero() { 
+  		fmt.Printf("Warning: Only zero time found: %s", droot)
+  	} else {
+  		if flagVerbose {
+		  	fmt.Printf("[%s]  %v  -->  %v\n", filepath.Base(droot), 
+			  	drootinfo.ModTime().Format(dateFormat), 
+			  	maxtime.Format(dateFormat))
+		  }
+		  if !flagTestOnly {
+			  err = os.Chtimes(droot, time.Now(), maxtime)
+			  if err != nil { log.Fatal(err) }		  	
+		  }
+
+		}
   }
 
 
@@ -79,30 +97,36 @@ func walktree(droot string) (int, error) {
 
 func main() {
 	flag.BoolVar(&flagVerbose, "v", false, "Prints detailed operations")
+	flag.BoolVar(&flagQuiet, "q", false, "No output apart from errors")
 	flag.BoolVar(&flagDotted, "d", false, "Follow hidden dot directorys")
 	flag.BoolVar(&flagIgnoreDir, "i", false, "Ignore directory timestamps")
+	flag.BoolVar(&flagTestOnly, "t", false, "Test only do not change")
 	flag.Parse()
 
 	items := []string{"."}  // default arguments to use if omitted
-
-	//fmt.Println("Verbose:", flagVerbose)
-	//fmt.Println("Args", flag.Args())
 
 	if flag.NArg() > 0 {
 		items = flag.Args()
 	}
 
+	start := time.Now()
+	total := 0
 	for _, i := range items {
 		topitems, err := filepath.Glob(i)
 		if err != nil { log.Fatal(err) }
 		for _, j := range topitems {
 			count, err := walktree(j)
 			if err != nil { log.Fatal(err)	}
-			fmt.Printf("Processed %d items in dir[%s]\n", count, i)
+			total += count
+			if flagVerbose {
+				fmt.Printf("Completed %d items in [%s]\n" , count, i)
+			}
 		}
-
 	}
-
+	if !flagQuiet {
+		elapsed := time.Since(start)
+		fmt.Printf("Processed %d total in %v\n" , total, elapsed)
+	}
 }
 
 
