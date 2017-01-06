@@ -13,6 +13,8 @@ modification times setting the parent directory to the most recent.  This includ
 Usage: treetime <directory>...
 
 	<directory> = list of directories to process.
+=======
+Usage: treetime <directory> ...
 
   -d    Follow hidden dot directorys
   -i    Ignore directory timestamps
