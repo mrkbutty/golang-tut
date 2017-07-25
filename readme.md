@@ -1,20 +1,20 @@
-# treetime v0.1
+# treestamp v0.1
 
 My first ever Go program in an attempt to learn about the language.
 
 Summary
 -------
-treetime will set directory timestamps to match most recent of contents below.
+treestamp will set directory timestamps to match most recent of contents below.
 
 In default mode it will recursively travel down the named directorys looking at
 modification times setting the parent directory to the most recent.  This includes file and directory timestamps unless changed with "-i".
  
 ```
-Usage: treetime <directory>...
+Usage: treestamp <directory>...
 
 	<directory> = list of directories to process.
 =======
-Usage: treetime <directory> ...
+Usage: treestamp <directory> ...
 
   -d    Follow hidden dot directorys
   -i    Ignore directory timestamps
